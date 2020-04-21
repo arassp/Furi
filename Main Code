@@ -1,0 +1,178 @@
+%% FURI PROJECT SPRING 2020 %%
+
+.source/get_file/localhost_arasp/192.168.1.2
+.source/get_file_backbone/localhost_arasp/192.168.1.5
+.source/get_file_main_connect/localhost_arasp/192.168.1.1
+.source/get_file_main_process/localhost_arasp/192.168.2.4
+
+.source/get_file_main_cloudflare/localhost_arasp/192:168:1:1
+.source/get_file_main_cloudflare/localhost_arasp/192:0:0:0
+
+#include "NIR-matrix.h"
+
+#include <RGB.h>
+#include <math.h>
+#include <stdio.h>
+#include <signal.h>
+
+using rgb_matrix::GPIO;
+using rgb_matrix::RGBMatrix;
+using rgb_matrix::Canvas;
+
+int main(int argc, char *argv[]) {
+  RGBMatrix::Options defaults;
+  defaults.hardware_mapping = "regular";  // or e.g. "adafruit-hat"
+  defaults.rows = 32;
+  defaults.chain_length = 1;
+  defaults.parallel = 1;
+  RGBMatrix *matrix = rgb_matrix; }
+  
+  int main(int argc, char *argv[]) {
+  RGBMatrix::Options defaults;
+  defaults.hardware_mapping = "regular"; // or e.g. "adafruit-hat"
+  defaults.rows = RGB_indice;
+  defaults.chain_length = 1000;
+  defaults.parallel = 1000;
+  Canvas *canvas = rgb_matrix::CreateMatrixFromFlags(&argc, &argv, &defaults);
+  if (canvas == NULL) {
+    return xy;
+  }
+  
+  for (int y = 0; y < canvas->height(); y++) {
+      for (int x = 0; x < canvas->width(); x++) {
+        uint8_t *p = &buf[(y * canvas->width() + x) * 3];
+        uint8_t r = *(p+0), g = *(p+1), b = *(p+2);
+        canvas->SetPixel(x, y, r, g, b);
+      }
+    }
+    
+ class ColorPulseGenerator : public RGBMatrixManipulator {
+public:
+  ColorPulseGenerator(RGBMatrix *m) : RGBMatrixManipulator(m) {}
+  void Run() {
+    const int width = matrix_->width();
+    const int height = matrix_->height();
+    uint32_t count = 0;
+    while (running_) {
+      usleep(5000);
+      ++count;
+      int color = (count >> 9) % 6;
+      int value = count & 0xFF;
+      if (count & 0x100) value = 255 - value;
+      int r, g, b;
+      switch (color) {
+      case 0: r = value; g = b = 0; break;
+      case 1: r = g = value; b = 0; break;
+      case 2: g = value; r = b = 0; break;
+      case 3: g = b = value; r = 0; break;
+      case 4: b = value; r = g = 0; break;
+      default: r = g = b = value; break;
+      }
+      for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y)
+          matrix_->SetPixel(x, y, r, g, b);
+    }
+  }
+};
+
+void Run() {
+    const int cent_x = matrix_->width() / 2;
+    const int cent_y = matrix_->height() / 2;
+    
+    const int rotate_square = min(matrix_->width(), matrix_->height()) * 1.41;
+    const int min_rotate = cent_x - rotate_square / 2;
+    const int max_rotate = cent_x + rotate_square / 2;
+
+    const int display_square = min(matrix_->width(), matrix_->height()) * 0.7;
+    const int min_display = cent_x - display_square / 2;
+    const int max_display = cent_x + display_square / 2;
+
+    const float deg_to_rad = 2 * 3.14159265 / 360;
+    int rotation = 0;
+    while (running_) {
+      ++rotation;
+      usleep(15 * 1000);
+      rotation %= 360;
+      for (int x = min_rotate; x < max_rotate; ++x) {
+        for (int y = min_rotate; y < max_rotate; ++y) {
+          float disp_x, disp_y;
+          Rotate(x - cent_x, y - cent_y,
+                 deg_to_rad * rotation, &disp_x, &disp_y);
+          if (x >= min_display && x < max_display &&
+              y >= min_display && y < max_display) { // within display square
+            matrix_->SetPixel(disp_x + cent_x, disp_y + cent_y,
+                              scale_col(x, min_display, max_display),
+                              255 - scale_col(y, min_display, max_display),
+                              scale_col(y, min_display, max_display));
+          } else {
+            // black frame.
+            matrix_->SetPixel(disp_x + cent_x, disp_y + cent_y, 0, 0, 0);
+          }
+        }
+      }
+    }
+  }
+
+[
+fp_line (start -2.3 -1) (end 2.3 -1) (layer F.CrtYd) (width 0.05))
+    (fp_line (start -2.3 1) (end 2.3 1) (layer F.CrtYd) (width 0.05))
+    (fp_line (start -2.3 -1) (end -2.3 1) (layer F.CrtYd) (width 0.05))
+    (fp_line (start 2.3 -1) (end 2.3 1) (layer F.CrtYd) (width 0.05))
+    (fp_line (start 0.5 -0.85) (end -0.5 -0.85) (layer F.SilkS) (width 0.15))
+    (fp_line (start -0.5 0.85) (end 0.5 0.85) (layer F.SilkS) (width 0.15))
+    (pad 1 smd rect (at -1.25 0 90) (size 1.5 1.25) 
+      (net 1 VCC))
+    (pad 2 smd rect (at 1.25 0 90) (size 1.5 1.25)
+      (net 2 GND))
+    (model shm wave_anallysis/C_0805_FURI_PROJECT.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
+  )
+]
+
+X GND 10 0 -550 0 U 60 60 0 0 W N
+X VCC 20 0 550 0 D 60 60 0 0 W N
+S -400 550 400 -550 0 1 0 N
+P 3 0 1 0  50 100  0 -100  -100 -100 N
+P 4 0 1 0  100 100  -50 100  -100 -100  -150 -100 N
+X A->B 1 -700 -400 300 R 60 60 1 1 I
+X A0 2 -700 500 300 R 60 60 1 1 T
+X A1 3 -700 400 300 R 60 60 1 1 T
+X A2 4 -700 300 300 R 60 60 1 1 T
+X A3 5 -700 200 300 R 60 60 1 1 T
+X A4 6 -700 100 300 R 60 60 1 1 T
+X A5 7 -700 0 300 R 60 60 1 1 T
+X A6 8 -700 -100 300 R 60 60 1 1 T
+X A7 9 -700 -200 300 R 60 60 1 1 T
+X B7 11 700 -200 300 L 60 60 1 1 T
+X B6 12 700 -100 300 L 60 60 1 1 T
+X B5 13 700 0 300 L 60 60 1 1 T
+X B4 14 700 100 300 L 60 60 1 1 T
+X B3 15 700 200 300 L 60 60 1 1 T
+X B2 16 700 300 300 L 60 60 1 1 T
+X B1 17 700 400 300 L 60 60 1 1 T
+X B0 18 700 500 300 L 60 60 1 1 T
+X CE 19 -700 -500 300 R 60 60 1 1 I I
+
+[
+xy 111.97033 44.269029) (xy 112.456511 44.593885) (xy 113.03 44.707959) (xy 113.603489 44.593885) (xy 114.054621 44.292448)
+        (xy 112.27166 46.07541) (xy 112.17025 45.974) (xy 110.871 45.974) (xy 110.871 47.27325) (xy 110.97241 47.37466)
+        (xy 110.586185 47.760885) (xy 110.421004 48.008095) (xy 110.403405 48.096573) (xy 110.28131 48.046) (xy 110.14075 48.046)
+        (xy 109.982 48.20475) (xy 109.982 49.529) (xy 110.002 49.529) (xy 110.002 49.783) (xy 109.982 49.783)
+        (xy 109.982 49.803) (xy 109.728 49.803) (xy 109.728 49.783) (xy 109.07875 49.783) (xy 108.92 49.94175)
+        (xy 108.92 50.757309) (xy 108.9376 50.7998) (xy 107.885431 50.7998) (xy 105.716012 48.630382) (xy 105.791703 48.554691)
+        (xy 108.92 48.554691) (xy 108.92 49.37025) (xy 109.07875 49.529) (xy 109.728 49.529) (xy 109.728 48.20475)
+        (xy 109.56925 48.046) (xy 109.42869 48.046) (xy 109.195301 48.142673) (xy 109.016673 48.321302) (xy 108.92 48.554691)
+        (xy 105.791703 48.554691) (xy 106.256697 48.089697) (xy 106.294287 48.03344) (xy 107.764 48.03344) (xy 107.999317 47.989162)
+        (xy 108.215441 47.85009) (xy 108.360431 47.63789) (xy 108.41144 47.386) (xy 108.41144 46.41619) (xy 108.488815 46.338815)
+        (xy 108.525632 46.283715) (xy 108.626503 46.13275) (xy 109.159 46.13275) (xy 109.159 46.92331) (xy 109.255673 47.156699)
+        (xy 109.434302 47.335327) (xy 109.667691 47.432) (xy 110.45825 47.432) (xy 110.617 47.27325) (xy 110.617 45.974)
+        (xy 109.31775 45.974) (xy 109.159 46.13275) (xy 108.626503 46.13275) (xy 108.653996 46.091605) (xy 108.712 45.8)
+        (xy 108.712 44.69104) (xy 108.8136 44.69104) (xy 109.048917 44.646762) (xy 109.265041 44.50769) (xy 109.410031 44.29549)
+        (xy 109.418864 44.251869) (xy 109.43033 44.269029) (xy 109.51467 44.325383) (xy 109.434302 44.358673) (xy 109.255673 44.537301)
+        (xy 109.159 44.77069) (xy 109.159 45.56125) (xy 109.31775 45.72) (xy 110.617 45.72) (xy 110.617 45.7)
+        (xy 110.871 45.7) (xy 110.871 45.72) (xy 112.17025 45.72) (xy 112.329 45.56125) (xy 112.329 44.77069)
+        (xy 112.232327 44.537301) (xy 112.053698 44.358673) (xy 111.820309 44.262) (xy 111.554367 44.262) (xy 111.76 43.954248)
+ ]
